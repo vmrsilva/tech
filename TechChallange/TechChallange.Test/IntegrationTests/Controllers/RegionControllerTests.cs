@@ -19,8 +19,6 @@ namespace TechChallange.Test.IntegrationTests.Controllers
 
         private readonly HttpClient _client;
 
-
-
         public RegionControllerTests(MsSqlContainerFixture fixture)
         {
             var factory = new WebApplicationFactory<Program>()
