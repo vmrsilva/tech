@@ -1,6 +1,8 @@
-﻿using System;
+﻿using DotNet.Testcontainers.Builders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Testcontainers.MsSql;
@@ -19,6 +21,19 @@ namespace TechChallange.Test.IntegrationTests
         //    //.WithImage("mcr.microsoft.com/mssql/server:2022-latest") // Imagem do SQL Server
         //    //.WithPassword("yourStrong(!)Password") // Senha do usuário SA
           .Build();
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                MsSqlContainer = new MsSqlBuilder()
+                    .WithImage("mcr.microsoft.com/mssql/server:2019-latest")
+                      .WithPassword("password(!)Strong")
+                             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(1433))
+                             .Build();
+            }
+            else
+            {
+                MsSqlContainer = new MsSqlBuilder().Build();
+            }
 
             RedisContainer = new RedisBuilder()
                 .Build();
