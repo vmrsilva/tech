@@ -1,0 +1,50 @@
+name: Git Actions Tech Challenge
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: CI - Build and Run Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 
+
+
+    - name: Set up.NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore packages
+      run: dotnet restore ./TechChallange/TechChallange.sln
+
+    - name: Build Solution
+      run: dotnet build ./TechChallange/TechChallange.sln --no-restore --configuration Release
+
+    - name: Set up Docker
+      run: |
+        docker info
+        docker network ls
+    - name: Run Dot Net Tests
+      run: dotnet test ./TechChallange/TechChallange.sln --no-build --configuration Release --logger trx
+      env:
+        DOTNET_EnablePreviewFeatures: "true"
+        #TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
+        #TESTCONTAINERS_RYUK_DISABLED: "true"
+
+    - name: Save tests results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: TestResults
+        path: "**/*.trx"
